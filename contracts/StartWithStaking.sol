@@ -6,28 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-
-interface Staking {
-    function stake(uint256 _amount) external;
-
-    function unStake() external;
-
-    function withdraw() external;
-
-    function claimRewards() external;
-
-    function stakeOf(address _address) external view returns (uint256);
-
-    function totalStakes() external view returns (uint256);
-
-    function checkRewards() external view returns (uint256);
-
-    function totalRewards() external view returns (uint256);
-
-    function updateAPY(uint256 _apy) external;
-
-    function updateUnBoundingPeriod(uint256 _unboundingPeriod) external;
-}
+import "./Staking.sol";
 
 contract StartWithStaking is Ownable, Staking {
     using SafeERC20 for IERC20;
@@ -37,27 +16,14 @@ contract StartWithStaking is Ownable, Staking {
         uint256 rewards;
         uint256 stakeTime;
         uint256 unstakeTime;
-        bool stakerExisted;
     }
 
     address[] internal stakers;
     mapping(address => Staker) stakersInfo;
-    IERC20 token;
-    uint256 apy;
-    uint256 unboundingPeriod;
-
-    // Unbounding period
-    // stake
-    // unstake
-    // withdraw
-    // claimRewards
-
-    // rewardsFor()
-    // stakeOf() / balanceOf()
-    //
-
-    //resources excel
-    //sushiswap github
+    IERC20 private token;
+    uint256 private apy;
+    uint256 private unboundingPeriod;
+    uint256 private ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 
     constructor(
         IERC20 _stakeToken,
@@ -69,21 +35,10 @@ contract StartWithStaking is Ownable, Staking {
         unboundingPeriod = _unboundingPeriod;
     }
 
-    //    tokens 100 , apy 100%, time 6 months -> balance -> 100, rewards -> 0
-    // Stake 50 more -> balance 150, rewards -> 50, rewardsOf() -> 50 + (currentTime - stakeTime) * balance (150) *  bla bla
-
-    // Usecase 1 -> APY 100% -> User 1 comes and stakes 100 tokens -> After a year total will be 200 tokens
-    // Now after 6 months of initial stake user 1 again contributes 100 tokens
-    // Now at the end of 1st year user 1 should have 350 tokens
-    // Usercase 2 -> User unstake and stakes again in unbounding period
-    // 3 -> User withdraws his rewards only
-    // 4 -> Owner updates the APY
-    // 5 -> Owner updates the unbounding period
-
     function stake(uint256 _amount) external override {
         _updateRewards(msg.sender);
-        if (!stakersInfo[msg.sender].stakerExisted) {
-            addStaker(msg.sender, _amount);
+        if (stakersInfo[msg.sender].stakeTime == 0) {
+            addStaker(msg.sender);
         } else {
             _updateStakeAndUnstakeTime();
         }
@@ -91,17 +46,19 @@ contract StartWithStaking is Ownable, Staking {
         token.safeTransferFrom(msg.sender, address(this), _amount);
     }
 
-    function unStake() external override isStaker {
+    function unstake() external override isStaker {
         Staker storage _staker = stakersInfo[msg.sender];
+        require(_staker.unstakeTime == 0, "Unstake request already placed");
         _staker.unstakeTime = block.timestamp;
         _updateRewards(msg.sender);
     }
 
     function withdraw() external override isStaker {
         Staker storage _staker = stakersInfo[msg.sender];
+        require(_staker.unstakeTime != 0, "Unstake not requested");
         require(
             _staker.unstakeTime + unboundingPeriod <= block.timestamp,
-            "unbounding period is not over yet"
+            "Unbounding period is not over yet"
         );
         token.safeTransfer(msg.sender, _staker.balance + _staker.rewards);
         _staker.balance = 0;
@@ -113,35 +70,6 @@ contract StartWithStaking is Ownable, Staking {
         Staker storage _staker = stakersInfo[msg.sender];
         token.safeTransfer(msg.sender, _staker.rewards);
         _staker.rewards = 0;
-    }
-
-    function stakeOf(address _address)
-        external
-        view
-        override
-        returns (uint256)
-    {
-        return stakersInfo[_address].balance;
-    }
-
-    function totalStakes() external view override returns (uint256) {
-        uint256 _totalStakes;
-        for (uint256 i = 0; i < stakers.length; i++) {
-            _totalStakes += stakersInfo[stakers[i]].balance;
-        }
-        return _totalStakes;
-    }
-
-    function checkRewards() external view override returns (uint256) {
-        return calculateReward();
-    }
-
-    function totalRewards() external view override returns (uint256) {
-        uint256 _totalRewards;
-        for (uint256 i = 0; i < stakers.length; i++) {
-            _totalRewards += stakersInfo[stakers[i]].rewards;
-        }
-        return _totalRewards;
     }
 
     function updateAPY(uint256 _apy) external override onlyOwner {
@@ -159,30 +87,31 @@ contract StartWithStaking is Ownable, Staking {
         unboundingPeriod = _unboundingPeriod;
     }
 
-    function addStaker(address _address, uint256 _amount) private {
-        Staker memory _staker = Staker(_amount, 0, block.timestamp, 0, true);
+    function addStaker(address _address) private {
+        Staker memory _staker = Staker(0, 0, block.timestamp, 0);
         stakersInfo[_address] = _staker;
         stakers.push(_address);
     }
 
     function _updateRewards(address _address) private {
         Staker storage _staker = stakersInfo[_address];
-        _staker.rewards = calculateReward();
+        _staker.rewards = calculateReward(_address);
     }
 
     function _updateStakeAndUnstakeTime() private {
         stakersInfo[msg.sender].stakeTime = block.timestamp;
         if (stakersInfo[msg.sender].unstakeTime != 0) {
+            // reset unstake time if user stakes again
             stakersInfo[msg.sender].unstakeTime = 0;
         }
     }
 
-    function calculateReward() private view returns (uint256) {
-        Staker memory _staker = stakersInfo[msg.sender];
+    function calculateReward(address _address) private view returns (uint256) {
+        Staker memory _staker = stakersInfo[_address];
         uint256 stakeDuration;
 
-        if (_staker.unstakeTime != 0 && _staker.rewards == 0) {
-            // rewards already claimed.
+        if (_staker.stakeTime == 0 && _staker.unstakeTime == 0) {
+            // before stake
             return 0;
         } else if (_staker.unstakeTime == 0) {
             // unstake request not placed yet.
@@ -191,12 +120,58 @@ contract StartWithStaking is Ownable, Staking {
             // unstake request already placed.
             stakeDuration = _staker.unstakeTime - _staker.stakeTime;
         }
-        //TODO Need to convert APY to percentage here
-        uint256 _rewards = stakersInfo[msg.sender].balance *
+        uint256 _rewards = (stakersInfo[_address].balance *
             apy *
-            stakeDuration;
-        return stakersInfo[msg.sender].rewards + _rewards;
+            stakeDuration) / (ONE_YEAR_IN_SECONDS * 100);
+        return stakersInfo[_address].rewards + _rewards;
     }
+
+    function stakeOf() external view override returns (uint256) {
+        return stakersInfo[msg.sender].balance;
+    }
+
+    function totalStakes() external view override returns (uint256) {
+        uint256 _totalStakes;
+        for (uint256 i = 0; i < stakers.length; i++) {
+            _totalStakes += stakersInfo[stakers[i]].balance;
+        }
+        return _totalStakes;
+    }
+
+    function rewardsOf(address _address) external view override returns (uint256) {
+        Staker memory _staker = stakersInfo[_address];
+        if (_staker.unstakeTime == 0) {
+            return calculateReward(_address);
+        } else {
+            return _staker.rewards;
+        }
+    }
+
+    function totalRewards() external view override returns (uint256) {
+        uint256 _totalRewards;
+        for (uint256 i = 0; i < stakers.length; i++) {
+            _totalRewards += stakersInfo[stakers[i]].rewards;
+        }
+        return _totalRewards;
+    }
+
+    function getAPY() external view returns (uint256) {
+        return apy;
+    }
+
+    function getUnboundingPeriod() external view returns (uint256) {
+        return unboundingPeriod;
+    }
+
+    function getStaker() external view returns (Staker memory) {
+        return stakersInfo[msg.sender];
+    }
+
+    function getAllStakers() external view returns (address[] memory) {
+        return stakers;
+    }
+
+    function getContractBalance() external view onlyOwner returns (uint256) {}
 
     modifier isStaker() {
         require(stakersInfo[msg.sender].balance > 0, "Not a staker");

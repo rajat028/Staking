@@ -23,7 +23,7 @@ contract StartWithStaking is Ownable, Staking {
     IERC20 private token;
     uint256 private apy;
     uint256 private unboundingPeriod;
-    uint256 private ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
+    uint256 private constant ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 
     constructor(
         IERC20 _stakeToken,
@@ -60,25 +60,30 @@ contract StartWithStaking is Ownable, Staking {
             _staker.unstakeTime + unboundingPeriod <= block.timestamp,
             "Unbounding period is not over yet"
         );
-        token.safeTransfer(msg.sender, _staker.balance + _staker.rewards);
+        uint256 _balance = _staker.balance;
+        uint256 _rewards = _staker.rewards;
         _staker.balance = 0;
         _staker.rewards = 0;
+        token.safeTransfer(msg.sender, _balance + _rewards);
     }
 
     function claimRewards() external override isStaker {
         _updateRewards(msg.sender);
         Staker storage _staker = stakersInfo[msg.sender];
-        token.safeTransfer(msg.sender, _staker.rewards);
+        uint256 _rewards = _staker.rewards;
         _staker.rewards = 0;
+        token.safeTransfer(msg.sender, _rewards);
     }
 
     function updateAPY(uint256 _apy) external override onlyOwner {
+        // Batching
         for (uint256 i = 0; i < stakers.length; i++) {
             _updateRewards(stakers[i]);
         }
         apy = _apy;
     }
 
+    // Correct Spelling
     function updateUnBoundingPeriod(uint256 _unboundingPeriod)
         external
         override
@@ -138,7 +143,12 @@ contract StartWithStaking is Ownable, Staking {
         return _totalStakes;
     }
 
-    function rewardsOf(address _address) external view override returns (uint256) {
+    function rewardsOf(address _address)
+        external
+        view
+        override
+        returns (uint256)
+    {
         Staker memory _staker = stakersInfo[_address];
         if (_staker.unstakeTime == 0) {
             return calculateReward(_address);
@@ -177,4 +187,8 @@ contract StartWithStaking is Ownable, Staking {
         require(stakersInfo[msg.sender].balance > 0, "Not a staker");
         _;
     }
+
+    // Pause -> Rewards will continue , but unable to stake
+    // Close Stake -> Rewards will stop , but unable to stake
+    // Claim Delay -> Claim Delay window will update after every claim
 }

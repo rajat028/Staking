@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/StartWithStaking.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> StartWithStaking.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">87.1% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>54/62</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">94.44% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>17/18</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85.71% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>18/21</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">87.1% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>54/62</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">9×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.0;
+&nbsp;
+import "hardhat/console.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Staking.sol";
+&nbsp;
+contract StartWithStaking is Ownable, Staking {
+    using SafeERC20 for IERC20;
+&nbsp;
+    struct Staker {
+        uint256 balance;
+        uint256 rewards;
+        uint256 stakeTime;
+        uint256 unstakeTime;
+    }
+&nbsp;
+    address[] internal stakers;
+    mapping(address =&gt; Staker) stakersInfo;
+    IERC20 private token;
+    uint256 private apy;
+    uint256 private unboundingPeriod;
+    uint256 private constant ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
+&nbsp;
+    constructor(
+        IERC20 _stakeToken,
+        uint256 _apy,
+        uint256 _unboundingPeriod
+    ) {
+        token = _stakeToken;
+        apy = _apy;
+        unboundingPeriod = _unboundingPeriod;
+    }
+&nbsp;
+    function stake(uint256 _amount) external override {
+        _updateRewards(msg.sender);
+        if (stakersInfo[msg.sender].stakeTime == 0) {
+            addStaker(msg.sender);
+        } else {
+            _updateStakeAndUnstakeTime();
+        }
+        stakersInfo[msg.sender].balance += _amount;
+        token.safeTransferFrom(msg.sender, address(this), _amount);
+    }
+&nbsp;
+    function unstake() external override isStaker {
+        Staker storage _staker = stakersInfo[msg.sender];
+        require(_staker.unstakeTime == 0, "Unstake request already placed");
+        _staker.unstakeTime = block.timestamp;
+        _updateRewards(msg.sender);
+    }
+&nbsp;
+    function withdraw() external override isStaker {
+        Staker storage _staker = stakersInfo[msg.sender];
+        require(_staker.unstakeTime != 0, "Unstake not requested");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(
+            _staker.unstakeTime + unboundingPeriod &lt;= block.timestamp,
+            "Unbounding period is not over yet"
+        );
+        token.safeTransfer(msg.sender, _staker.balance + _staker.rewards);
+        _staker.balance = 0;
+        _staker.rewards = 0;
+    }
+&nbsp;
+    function claimRewards() external override isStaker {
+        _updateRewards(msg.sender);
+        Staker storage _staker = stakersInfo[msg.sender];
+        token.safeTransfer(msg.sender, _staker.rewards);
+        _staker.rewards = 0;
+    }
+&nbsp;
+    function updateAPY(uint256 _apy) external override onlyOwner {
+        // Batching
+        for (uint256 i = 0; i &lt; stakers.length; i++) {
+            _updateRewards(stakers[i]);
+        }
+        apy = _apy;
+    }
+&nbsp;
+    // Correct Spelling
+    function updateUnBoundingPeriod(uint256 _unboundingPeriod)
+        external
+        override
+        onlyOwner
+    {
+        unboundingPeriod = _unboundingPeriod;
+    }
+&nbsp;
+    function addStaker(address _address) private {
+        Staker memory _staker = Staker(0, 0, block.timestamp, 0);
+        stakersInfo[_address] = _staker;
+        stakers.push(_address);
+    }
+&nbsp;
+    function _updateRewards(address _address) private {
+        Staker storage _staker = stakersInfo[_address];
+        _staker.rewards = calculateReward(_address);
+    }
+&nbsp;
+    function _updateStakeAndUnstakeTime() private {
+        stakersInfo[msg.sender].stakeTime = block.timestamp;
+        if (stakersInfo[msg.sender].unstakeTime != 0) {
+            // reset unstake time if user stakes again
+            stakersInfo[msg.sender].unstakeTime = 0;
+        }
+    }
+&nbsp;
+    function calculateReward(address _address) private view returns (uint256) {
+        Staker memory _staker = stakersInfo[_address];
+        uint256 stakeDuration;
+&nbsp;
+        if (_staker.stakeTime == 0 &amp;&amp; _staker.unstakeTime == 0) {
+            // before stake
+            return 0;
+        } else if (_staker.unstakeTime == 0) {
+            // unstake request not placed yet.
+            stakeDuration = block.timestamp - _staker.stakeTime;
+        } else {
+            // unstake request already placed.
+            stakeDuration = _staker.unstakeTime - _staker.stakeTime;
+        }
+        uint256 _rewards = (stakersInfo[_address].balance *
+            apy *
+            stakeDuration) / (ONE_YEAR_IN_SECONDS * 100);
+        return stakersInfo[_address].rewards + _rewards;
+    }
+&nbsp;
+    function stakeOf() external view override returns (uint256) {
+        return stakersInfo[msg.sender].balance;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function totalStakes() external view override returns (uint256) {</span>
+<span class="cstat-no" title="statement not covered" >        uint256 _totalStakes;</span>
+<span class="cstat-no" title="statement not covered" >        for (uint256 i = 0; i &lt; stakers.length; i++) {</span>
+<span class="cstat-no" title="statement not covered" >            _totalStakes += stakersInfo[stakers[i]].balance</span>;
+        }
+<span class="cstat-no" title="statement not covered" >        return _totalStakes;</span>
+    }
+&nbsp;
+    function rewardsOf(address _address) external view override returns (uint256) {
+        Staker memory _staker = stakersInfo[_address];
+        if (_staker.unstakeTime == 0) {
+            return calculateReward(_address);
+        } else {
+            return _staker.rewards;
+        }
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function totalRewards() external view override returns (uint256) {</span>
+<span class="cstat-no" title="statement not covered" >        uint256 _totalRewards;</span>
+<span class="cstat-no" title="statement not covered" >        for (uint256 i = 0; i &lt; stakers.length; i++) {</span>
+<span class="cstat-no" title="statement not covered" >            _totalRewards += stakersInfo[stakers[i]].rewards</span>;
+        }
+<span class="cstat-no" title="statement not covered" >        return _totalRewards;</span>
+    }
+&nbsp;
+    function getAPY() external view returns (uint256) {
+        return apy;
+    }
+&nbsp;
+    function getUnboundingPeriod() external view returns (uint256) {
+        return unboundingPeriod;
+    }
+&nbsp;
+    function getStaker() external view returns (Staker memory) {
+        return stakersInfo[msg.sender];
+    }
+&nbsp;
+    function getAllStakers() external view returns (address[] memory) {
+        return stakers;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function getContractBalance() external view onlyOwner returns (uint256) {}</span>
+&nbsp;
+    modifier isStaker() {
+        require(stakersInfo[msg.sender].balance &gt; 0, "Not a staker");
+        _;
+    }
+&nbsp;
+    // Pause -&gt; Rewards will continue , but unable to stake  
+    // Close Stake -&gt; Rewards will stop , but unable to stake 
+    // Claim Delay -&gt; Claim Delay window will update after every claim 
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Aug 05 2021 14:26:22 GMT+0530 (India Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

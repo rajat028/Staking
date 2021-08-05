@@ -208,6 +208,26 @@ describe("StartWithStaking Contract", () => {
         })
 
         it("should not be able to withdraw if unbounding period is not over", async () => {
+             // Given 
+             const stakingAmount = tokenOf(100)
+             const supplyAmount = tokenOf(1000)
+             await tokenContract.transfer(staker1.address, stakingAmount)
+             await token1Contract.approve(stakingContract.address, stakingAmount)
+             await tokenContract.transfer(stakingContract.address, supplyAmount)
+             await staker1Contract.stake(stakingAmount)
+ 
+             await ethers.provider.send("evm_increaseTime", [ONE_HOUR_IN_SECONDS])
+             await ethers.provider.send("evm_mine", [])
+ 
+             await staker1Contract.unstake()
+ 
+            // When & Then
+            await expect(staker1Contract.withdraw())
+            .to.be.
+            revertedWith("Unbounding period is not over yet")
+        })
+
+        it("should be able to withdraw if unbounding period is over", async () => {
             // Given 
             const stakingAmount = tokenOf(100)
             const supplyAmount = tokenOf(1000)
@@ -232,14 +252,14 @@ describe("StartWithStaking Contract", () => {
             await staker1Contract.withdraw()
 
             // Then
-            let balanceAfterWithdraw = await tokenContract.balanceOf(staker1.address)
-            const result = initialBalance.add(stakesBeforeWithdraw.add(rewardsBeforeWithdraw))
-            expect(result.toString()).equal(balanceAfterWithdraw.toString())
-
             const stakesAfterWithdraw = await staker1Contract.stakeOf()
             const rewardsAfterWithdraw = await stakingContract.rewardsOf(staker1.address)
             expect(stakesAfterWithdraw.toString()).equal("0")
             expect(rewardsAfterWithdraw.toString()).equal("0")
+
+            let balanceAfterWithdraw = await tokenContract.balanceOf(staker1.address)
+            const result = initialBalance.add(stakesBeforeWithdraw.add(rewardsBeforeWithdraw))
+            expect(result.toString()).equal(balanceAfterWithdraw.toString())
 
             await ethers.provider.send("evm_increaseTime", [-ONE_HOUR_IN_SECONDS])
             await ethers.provider.send("evm_increaseTime", [-ONE_HOUR_IN_SECONDS])

@@ -6,13 +6,13 @@ function tokenOf(value) {
     return utils.parseUnits(value.toString(), 18)
 }
 
-describe("StartWithStaking Contract", () => {
-    let StartWithStaking, stakingContract, owner, staker1, staker2, staker3, MockToken
+describe("Staking Contract", () => {
+    let Staking, stakingContract, owner, staker1, staker2, staker3, MockToken
     let staker1Contract
     let token1Contract
     let tokenContract
     let apy = 7
-    let unboundingPeriod = 10
+    let unbondingPeriod = 10
     const ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60
     const ONE_MONTH_IN_SECONDS = 30 * 24 * 60 * 60
     const ONE_HOUR_IN_SECONDS = 60 * 60
@@ -24,8 +24,8 @@ describe("StartWithStaking Contract", () => {
         tokenContract = await MockToken.deploy()
         await tokenContract.deployed()
 
-        StartWithStaking = await ethers.getContractFactory('StartWithStaking')
-        stakingContract = await StartWithStaking.deploy(tokenContract.address, apy, unboundingPeriod)
+        Staking = await ethers.getContractFactory('Staking')
+        stakingContract = await Staking.deploy(tokenContract.address, apy, unbondingPeriod)
         await stakingContract.deployed()
 
         staker1Contract = stakingContract.connect(staker1)
@@ -36,7 +36,7 @@ describe("StartWithStaking Contract", () => {
 
         it("should assign the corret values", async () => {
             expect(await stakingContract.getAPY()).equal(apy)
-            expect(await stakingContract.getUnboundingPeriod()).equal(unboundingPeriod)
+            expect(await stakingContract.getUnbondingPeriod()).equal(unbondingPeriod)
         })
 
         it("should through error if non-owner tries to update APY", async () => {
@@ -75,22 +75,22 @@ describe("StartWithStaking Contract", () => {
             await ethers.provider.send("evm_increaseTime", [-ONE_MONTH_IN_SECONDS])
         })
 
-        it("should through error if non-owner tries to update unboundingPeriod", async () => {
+        it("should through error if non-owner tries to update unbondingPeriod", async () => {
             // Given
-            await expect(stakingContract.connect(staker1).updateUnBoundingPeriod(unboundingPeriod))
+            await expect(stakingContract.connect(staker1).updateUnbondingPeriod(unbondingPeriod))
                 .to.be.
                 revertedWith("Ownable: caller is not the owner")
         })
 
-        it("should be able to update unboundingPeriod by owner only", async () => {
+        it("should be able to update unbondingPeriod by owner only", async () => {
             // Given
-            unboundingPeriod = 15;
+            unbondingPeriod = 15;
 
             // When
-            await expect(stakingContract.updateUnBoundingPeriod(unboundingPeriod))
+            await expect(stakingContract.updateUnbondingPeriod(unbondingPeriod))
 
             // Then
-            expect(await stakingContract.getUnboundingPeriod()).equal(unboundingPeriod)
+            expect(await stakingContract.getUnbondingPeriod()).equal(unbondingPeriod)
         })
     })
 
@@ -207,7 +207,7 @@ describe("StartWithStaking Contract", () => {
                 revertedWith("Unstake not requested")
         })
 
-        it("should not be able to withdraw if unbounding period is not over", async () => {
+        it("should not be able to withdraw if unbonding period is not over", async () => {
              // Given 
              const stakingAmount = tokenOf(100)
              const supplyAmount = tokenOf(1000)
@@ -224,7 +224,7 @@ describe("StartWithStaking Contract", () => {
             // When & Then
             await expect(staker1Contract.withdraw())
             .to.be.
-            revertedWith("Unbounding period is not over yet")
+            revertedWith("Unbonding period is not over yet")
         })
 
         it("should be able to withdraw if unbounding period is over", async () => {

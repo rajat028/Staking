@@ -2,28 +2,14 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IStaking.sol";
+import "./Config.sol";
 
-contract Staking is Ownable, IStaking {
+contract Staking is Config, Ownable, IStaking {
     using SafeERC20 for IERC20;
-
-    struct Staker {
-        uint256 balance;
-        uint256 rewards;
-        uint256 stakeTime;
-        uint256 unstakeTime;
-    }
-
-    address[] internal stakers;
-    mapping(address => Staker) stakersInfo;
-    IERC20 private token;
-    uint256 private apy;
-    uint256 private unbondingPeriod;
-    uint256 private constant ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
 
     constructor(
         IERC20 _stakeToken,
@@ -165,14 +151,6 @@ contract Staking is Ownable, IStaking {
         return _totalRewards;
     }
 
-    function getAPY() external view returns (uint256) {
-        return apy;
-    }
-
-    function getUnbondingPeriod() external view returns (uint256) {
-        return unbondingPeriod;
-    }
-
     function getStaker() external view returns (Staker memory) {
         return stakersInfo[msg.sender];
     }
@@ -191,4 +169,6 @@ contract Staking is Ownable, IStaking {
     // Pause -> Rewards will continue , but unable to stake
     // Close Stake -> Rewards will stop , but unable to stake
     // Claim Delay -> Claim Delay window will update after every claim
+    // 2045583  ·    2045595  ·    2045594  ·       16.4 %
+    //  2071940  ·    2071952  ·    2071951  ·       16.6 %
 }

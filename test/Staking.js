@@ -35,8 +35,8 @@ describe("Staking Contract", () => {
     describe("Owner operations", () => {
 
         it("should assign the corret values", async () => {
-            expect(await stakingContract.getAPY()).equal(apy)
-            expect(await stakingContract.getUnbondingPeriod()).equal(unbondingPeriod)
+            expect(await stakingContract.apy()).equal(apy)
+            expect(await stakingContract.unbondingPeriod()).equal(unbondingPeriod)
         })
 
         it("should through error if non-owner tries to update APY", async () => {
@@ -66,7 +66,7 @@ describe("Staking Contract", () => {
             await stakingContract.updateAPY(APY)
 
             // Then
-            expect(await stakingContract.getAPY()).equal(APY)
+            expect(await stakingContract.apy()).equal(APY)
 
             const stakerAfterApyUpdated = await staker1Contract.getStaker()
             const rewardsAfterApyUpdated = stakerAfterApyUpdated.rewards
@@ -90,7 +90,7 @@ describe("Staking Contract", () => {
             await expect(stakingContract.updateUnbondingPeriod(unbondingPeriod))
 
             // Then
-            expect(await stakingContract.getUnbondingPeriod()).equal(unbondingPeriod)
+            expect(await stakingContract.unbondingPeriod()).equal(unbondingPeriod)
         })
     })
 

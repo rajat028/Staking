@@ -12,6 +12,6 @@ Features
 - Pause Staking -> Rewards will continue to update, but staking will not work.
 - Close Staking -> Rewards updation and staking process both will stop.
 - Claim Delay -> User can claim after the delay period is over. (for eg : delay period is 10 days)
- - Usecase 1 - After staking user will be able to claim rewards delay period is over.
- - Usecase 2 - If user claim rewards on 10th then the user will be eligible on 21st.
- - Usecase 3 - If user claim rewards after 15days then the user will be eligible to claim rewards after (last claim time + delay period).
+  - Usecase 1 - After staking user will be able to claim rewards delay period is over.
+  - Usecase 2 - If user claim rewards on 10th then the user will be eligible on 21st.
+  - Usecase 3 - If user claim rewards after 15days then the user will be eligible to claim rewards after (last claim time + delay period).

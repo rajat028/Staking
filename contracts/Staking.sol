@@ -26,7 +26,11 @@ contract Staking is Config, Ownable, IStaking {
         if (stakersInfo[msg.sender].stakeTime == 0) {
             addStaker(msg.sender);
         } else {
-            _updateStakeAndUnstakeTime();
+            stakersInfo[msg.sender].stakeTime = block.timestamp;
+            if (stakersInfo[msg.sender].unstakeTime != 0) {
+                // reset unstake time if user stakes again
+                stakersInfo[msg.sender].unstakeTime = 0;
+            }
         }
         stakersInfo[msg.sender].balance += _amount;
         token.safeTransferFrom(msg.sender, address(this), _amount);
@@ -87,14 +91,6 @@ contract Staking is Config, Ownable, IStaking {
     function _updateRewards(address _address) private {
         Staker storage _staker = stakersInfo[_address];
         _staker.rewards = calculateReward(_address);
-    }
-
-    function _updateStakeAndUnstakeTime() private {
-        stakersInfo[msg.sender].stakeTime = block.timestamp;
-        if (stakersInfo[msg.sender].unstakeTime != 0) {
-            // reset unstake time if user stakes again
-            stakersInfo[msg.sender].unstakeTime = 0;
-        }
     }
 
     function calculateReward(address _address) private view returns (uint256) {

@@ -164,6 +164,4 @@ contract Staking is Config, Ownable, IStaking {
     // Pause -> Rewards will continue , but unable to stake
     // Close Stake -> Rewards will stop , but unable to stake
     // Claim Delay -> Claim Delay window will update after every claim
-    // 2045583  ·    2045595  ·    2045594  ·       16.4 %
-    //  2071940  ·    2071952  ·    2071951  ·       16.6 %
 }

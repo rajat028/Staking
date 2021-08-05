@@ -1,6 +1,5 @@
 const { expect, assert } = require('chai')
 const { utils } = require('ethers')
-const { time } = require('@openzeppelin/test-helpers')
 
 function tokenOf(value) {
     return utils.parseUnits(value.toString(), 18)
@@ -155,7 +154,7 @@ describe("Staking Contract", () => {
 
             await expect(staker1Contract.unstake())
                 .to.be.
-                revertedWith("Unstake request already placed")
+                revertedWith("Already Unstaked")
         })
 
         it("should not be able to claim rewards if not staker", async () => {
@@ -224,7 +223,7 @@ describe("Staking Contract", () => {
             // When & Then
             await expect(staker1Contract.withdraw())
             .to.be.
-            revertedWith("Unbonding period is not over yet")
+            revertedWith("Unbonding not over")
         })
 
         it("should be able to withdraw if unbounding period is over", async () => {

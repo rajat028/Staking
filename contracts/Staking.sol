@@ -38,7 +38,7 @@ contract Staking is Config, Ownable, IStaking {
 
     function unstake() external override isStaker {
         Staker storage _staker = stakersInfo[msg.sender];
-        require(_staker.unstakeTime == 0, "Unstake request already placed");
+        require(_staker.unstakeTime == 0, "Already Unstaked");
         _staker.unstakeTime = block.timestamp;
         _updateRewards(msg.sender);
     }
@@ -48,7 +48,7 @@ contract Staking is Config, Ownable, IStaking {
         require(_staker.unstakeTime != 0, "Unstake not requested");
         require(
             _staker.unstakeTime + unbondingPeriod <= block.timestamp,
-            "Unbonding period is not over yet"
+            "Unbonding not over"
         );
         uint256 _balance = _staker.balance;
         uint256 _rewards = _staker.rewards;
@@ -73,7 +73,6 @@ contract Staking is Config, Ownable, IStaking {
         apy = _apy;
     }
 
-    // Correct Spelling
     function updateUnbondingPeriod(uint256 _unbondingPeriod)
         external
         override
@@ -109,7 +108,7 @@ contract Staking is Config, Ownable, IStaking {
         }
         uint256 _rewards = (stakersInfo[_address].balance *
             apy *
-            stakeDuration) / (ONE_YEAR_IN_SECONDS * 100);
+            stakeDuration) / (ONE_YEAR_IN_SECONDS * PERCENTAGE_MULTIPLIER);
         return stakersInfo[_address].rewards + _rewards;
     }
 

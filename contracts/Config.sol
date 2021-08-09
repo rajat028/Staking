@@ -9,6 +9,7 @@ contract Config {
         uint256 rewards;
         uint256 stakeTime;
         uint256 unstakeTime;
+        uint256 rewardsClaimedTime;
     }
 
     address[] public stakers;
@@ -17,6 +18,7 @@ contract Config {
     IERC20 internal token;
     uint256 public apy;
     uint256 public unbondingPeriod;
+    uint256 public claimDelay;
     uint256 internal constant ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
     uint256 internal constant PERCENTAGE_MULTIPLIER = 100;
 }

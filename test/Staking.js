@@ -12,7 +12,7 @@ describe("Staking Contract", () => {
     let tokenContract
     let apy = 7
     let unbondingPeriod = 10
-    const ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60
+    let CLAIM_DELAY = 10 * 24 * 60 * 60
     const ONE_MONTH_IN_SECONDS = 30 * 24 * 60 * 60
     const ONE_HOUR_IN_SECONDS = 60 * 60
 
@@ -24,7 +24,7 @@ describe("Staking Contract", () => {
         await tokenContract.deployed()
 
         Staking = await ethers.getContractFactory('Staking')
-        stakingContract = await Staking.deploy(tokenContract.address, apy, unbondingPeriod)
+        stakingContract = await Staking.deploy(tokenContract.address, apy, unbondingPeriod, CLAIM_DELAY)
         await stakingContract.deployed()
 
         staker1Contract = stakingContract.connect(staker1)
@@ -36,6 +36,7 @@ describe("Staking Contract", () => {
         it("should assign the corret values", async () => {
             expect(await stakingContract.apy()).equal(apy)
             expect(await stakingContract.unbondingPeriod()).equal(unbondingPeriod)
+            expect(await stakingContract.claimDelay()).equal(CLAIM_DELAY)
         })
 
         it("should through error if non-owner tries to update APY", async () => {
@@ -90,6 +91,24 @@ describe("Staking Contract", () => {
 
             // Then
             expect(await stakingContract.unbondingPeriod()).equal(unbondingPeriod)
+        })
+
+        it("should through error if non-owner tries to update claimDelay", async () => {
+            // Given
+            await expect(stakingContract.connect(staker1).updateClaimDelay(CLAIM_DELAY))
+                .to.be.
+                revertedWith("Ownable: caller is not the owner")
+        })
+
+        it("should be able to update claimDelay by owner only", async () => {
+            // Given
+            CLAIM_DELAY = 15 * 24 * 60 * 60;
+
+            // When
+            await expect(stakingContract.updateClaimDelay(CLAIM_DELAY))
+
+            // Then
+            expect(await stakingContract.claimDelay()).equal(CLAIM_DELAY)
         })
     })
 
@@ -163,8 +182,26 @@ describe("Staking Contract", () => {
                 revertedWith("Not a staker")
         })
 
+        it("should not be able to claim rewards if claim delay is not over", async () => {
+            // Given 
+            const stakingAmount = tokenOf(100)
+            await tokenContract.transfer(staker1.address, stakingAmount)
+            await token1Contract.approve(stakingContract.address, stakingAmount)
+            await staker1Contract.stake(stakingAmount)
 
-        it("should be able to claim rewards when unstake not requested", async () => {
+            await ethers.provider.send("evm_increaseTime", [ONE_HOUR_IN_SECONDS])
+            await ethers.provider.send("evm_mine", [])
+
+            // When & Then
+            await expect(staker1Contract.claimRewards())
+                .to.be.
+                revertedWith("Rewards cannot claimed")
+
+            await ethers.provider.send("evm_increaseTime", [-ONE_HOUR_IN_SECONDS])
+        })
+
+
+        it("should be able to claim rewards when unstake not requested and claim delay is over", async () => {
             // Given 
             const stakingAmount = tokenOf(100)
             await tokenContract.transfer(staker1.address, stakingAmount)
@@ -175,6 +212,7 @@ describe("Staking Contract", () => {
             await ethers.provider.send("evm_mine", [])
 
             // When
+            const stakerBeforeRewardsClaimed = await staker1Contract.getStaker()
             const rewards = await stakingContract.rewardsOf(staker1.address)
             await staker1Contract.claimRewards()
 
@@ -183,8 +221,11 @@ describe("Staking Contract", () => {
             const finalBalance = await tokenContract.balanceOf(staker1.address)
             expect(formattedRewards).equal(finalBalance.toString().substring(0, 3))
 
-            const staker = await staker1Contract.getStaker()
-            expect(staker.rewards).equal(0)
+            const stakerAfterRewardsClaimed = await staker1Contract.getStaker()
+
+            expect(stakerAfterRewardsClaimed.rewardsClaimedTime.toNumber())
+                .greaterThan(stakerBeforeRewardsClaimed.rewardsClaimedTime.toNumber())
+            expect(stakerAfterRewardsClaimed.rewards).equal(0)
 
             await ethers.provider.send("evm_increaseTime", [-ONE_MONTH_IN_SECONDS])
         })
@@ -207,23 +248,25 @@ describe("Staking Contract", () => {
         })
 
         it("should not be able to withdraw if unbonding period is not over", async () => {
+            // Given 
              // Given 
-             const stakingAmount = tokenOf(100)
-             const supplyAmount = tokenOf(1000)
-             await tokenContract.transfer(staker1.address, stakingAmount)
-             await token1Contract.approve(stakingContract.address, stakingAmount)
-             await tokenContract.transfer(stakingContract.address, supplyAmount)
-             await staker1Contract.stake(stakingAmount)
- 
-             await ethers.provider.send("evm_increaseTime", [ONE_HOUR_IN_SECONDS])
-             await ethers.provider.send("evm_mine", [])
- 
-             await staker1Contract.unstake()
- 
+            // Given 
+            const stakingAmount = tokenOf(100)
+            const supplyAmount = tokenOf(1000)
+            await tokenContract.transfer(staker1.address, stakingAmount)
+            await token1Contract.approve(stakingContract.address, stakingAmount)
+            await tokenContract.transfer(stakingContract.address, supplyAmount)
+            await staker1Contract.stake(stakingAmount)
+
+            await ethers.provider.send("evm_increaseTime", [ONE_HOUR_IN_SECONDS])
+            await ethers.provider.send("evm_mine", [])
+
+            await staker1Contract.unstake()
+
             // When & Then
             await expect(staker1Contract.withdraw())
-            .to.be.
-            revertedWith("Unbonding not over")
+                .to.be.
+                revertedWith("Unbonding not over")
         })
 
         it("should be able to withdraw if unbounding period is over", async () => {
@@ -251,10 +294,13 @@ describe("Staking Contract", () => {
             await staker1Contract.withdraw()
 
             // Then
-            const stakesAfterWithdraw = await staker1Contract.stakeOf()
-            const rewardsAfterWithdraw = await stakingContract.rewardsOf(staker1.address)
+            const stakerAfterWithdraw = await staker1Contract.getStaker()
+            const stakesAfterWithdraw = stakerAfterWithdraw.balance;
+            const rewardsAfterWithdraw = stakerAfterWithdraw.rewards;
+            const rewardsClaimedTimeAfterWithdraw = stakerAfterWithdraw.rewardsClaimedTime;
             expect(stakesAfterWithdraw.toString()).equal("0")
             expect(rewardsAfterWithdraw.toString()).equal("0")
+            expect(rewardsClaimedTimeAfterWithdraw.toString()).equal("0")
 
             let balanceAfterWithdraw = await tokenContract.balanceOf(staker1.address)
             const result = initialBalance.add(stakesBeforeWithdraw.add(rewardsBeforeWithdraw))

@@ -14,11 +14,13 @@ contract Staking is Config, Ownable, IStaking {
     constructor(
         IERC20 _stakeToken,
         uint256 _apy,
-        uint256 _unbondingPeriod
+        uint256 _unbondingPeriod,
+        uint256 _claimDealy
     ) {
         token = _stakeToken;
         apy = _apy;
         unbondingPeriod = _unbondingPeriod;
+        claimDelay = _claimDealy;
     }
 
     function stake(uint256 _amount) external override {
@@ -54,13 +56,19 @@ contract Staking is Config, Ownable, IStaking {
         uint256 _rewards = _staker.rewards;
         _staker.balance = 0;
         _staker.rewards = 0;
+        _staker.rewardsClaimedTime = 0;
         token.safeTransfer(msg.sender, _balance + _rewards);
     }
 
     function claimRewards() external override isStaker {
-        _updateRewards(msg.sender);
         Staker storage _staker = stakersInfo[msg.sender];
+        require(
+            _staker.rewardsClaimedTime + claimDelay <= block.timestamp,
+            "Rewards cannot claimed"
+        );
+        _updateRewards(msg.sender);
         uint256 _rewards = _staker.rewards;
+        _staker.rewardsClaimedTime = block.timestamp;
         _staker.rewards = 0;
         token.safeTransfer(msg.sender, _rewards);
     }
@@ -81,8 +89,18 @@ contract Staking is Config, Ownable, IStaking {
         unbondingPeriod = _unbondingPeriod;
     }
 
+    function updateClaimDelay(uint256 _claimDelay) external override onlyOwner {
+        claimDelay = _claimDelay;
+    }
+
     function addStaker(address _address) private {
-        Staker memory _staker = Staker(0, 0, block.timestamp, 0);
+        Staker memory _staker = Staker(
+            0,
+            0,
+            block.timestamp,
+            0,
+            block.timestamp
+        );
         stakersInfo[_address] = _staker;
         stakers.push(_address);
     }
@@ -160,8 +178,4 @@ contract Staking is Config, Ownable, IStaking {
         require(stakersInfo[msg.sender].balance > 0, "Not a staker");
         _;
     }
-
-    // Pause -> Rewards will continue , but unable to stake
-    // Close Stake -> Rewards will stop , but unable to stake
-    // Claim Delay -> Claim Delay window will update after every claim
 }

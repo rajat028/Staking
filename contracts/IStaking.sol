@@ -21,5 +21,7 @@ interface IStaking {
 
     function updateAPY(uint256 _apy) external;
 
+    function updateClaimDelay(uint256 _claimDelay) external;
+
     function updateUnbondingPeriod(uint256 _unbondingPeriod) external;
 }

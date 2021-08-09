@@ -15,3 +15,4 @@ Features
   - Usecase 1 - After staking user will be able to claim rewards delay period is over.
   - Usecase 2 - If user claim rewards on 10th then the user will be eligible on 21st.
   - Usecase 3 - If user claim rewards after 15days then the user will be eligible to claim rewards after (last claim time + delay period).
+  - Usecase 4 - Unstake without unbonding period with some amount of fee. 

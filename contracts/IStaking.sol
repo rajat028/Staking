@@ -24,4 +24,6 @@ interface IStaking {
     function updateClaimDelay(uint256 _claimDelay) external;
 
     function updateUnbondingPeriod(uint256 _unbondingPeriod) external;
+
+    function pause(bool pauseStatus) external;
 }

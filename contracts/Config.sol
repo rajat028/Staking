@@ -19,6 +19,7 @@ contract Config {
     uint256 public apy;
     uint256 public unbondingPeriod;
     uint256 public claimDelay;
+    bool public pauseStatus;
     uint256 internal constant ONE_YEAR_IN_SECONDS = 365 * 24 * 60 * 60;
     uint256 internal constant PERCENTAGE_MULTIPLIER = 100;
 }

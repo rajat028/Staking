@@ -24,6 +24,7 @@ contract Staking is Config, Ownable, IStaking {
     }
 
     function stake(uint256 _amount) external override {
+        require(pauseStatus, "Staking not active");
         _updateRewards(msg.sender);
         if (stakersInfo[msg.sender].stakeTime == 0) {
             addStaker(msg.sender);
@@ -93,6 +94,10 @@ contract Staking is Config, Ownable, IStaking {
         claimDelay = _claimDelay;
     }
 
+    function pause(bool _pauseStatus) external override onlyOwner {
+        pauseStatus = _pauseStatus;
+    }
+
     function addStaker(address _address) private {
         Staker memory _staker = Staker(
             0,
@@ -108,7 +113,7 @@ contract Staking is Config, Ownable, IStaking {
     function _updateRewards(address _address) private {
         Staker storage _staker = stakersInfo[_address];
         _staker.rewards = calculateReward(_address);
-    }
+    } 
 
     function calculateReward(address _address) private view returns (uint256) {
         Staker memory _staker = stakersInfo[_address];

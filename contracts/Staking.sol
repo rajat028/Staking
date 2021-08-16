@@ -15,16 +15,23 @@ contract Staking is Config, Ownable, IStaking {
         IERC20 _stakeToken,
         uint256 _apy,
         uint256 _unbondingPeriod,
-        uint256 _claimDealy
+        uint256 _claimDealy,
+        bool _pauseStatus,
+        bool _stopStatus,
+        uint256 _immediateUnstakeFine
     ) {
         token = _stakeToken;
         apy = _apy;
         unbondingPeriod = _unbondingPeriod;
         claimDelay = _claimDealy;
+        pauseStatus = _pauseStatus;
+        stopStatus = _stopStatus;
+        immediateUnstakeFine = _immediateUnstakeFine;
     }
 
     function stake(uint256 _amount) external override {
-        require(pauseStatus, "Staking not active");
+        require(_amount > 0, "Invalid amount");
+        require(stopStatus && pauseStatus, "Staking not active");
         _updateRewards(msg.sender);
         if (stakersInfo[msg.sender].stakeTime == 0) {
             addStaker(msg.sender);
@@ -39,21 +46,33 @@ contract Staking is Config, Ownable, IStaking {
         token.safeTransferFrom(msg.sender, address(this), _amount);
     }
 
-    function unstake() external override isStaker {
+    function unstake(bool withdrawWithFine) external override isStaker {
         Staker storage _staker = stakersInfo[msg.sender];
         require(_staker.unstakeTime == 0, "Already Unstaked");
         _staker.unstakeTime = block.timestamp;
         _updateRewards(msg.sender);
+        if (withdrawWithFine || unbondingPeriod == 0) {
+            withdraw(withdrawWithFine);
+        }
     }
 
-    function withdraw() external override isStaker {
+    function withdraw(bool withdrawWithFine) public isStaker {
         Staker storage _staker = stakersInfo[msg.sender];
         require(_staker.unstakeTime != 0, "Unstake not requested");
+        require(_staker.balance > 0, "Not enough balance");
+        uint256 _unbondingPeriod = unbondingPeriod;
+        uint256 _balance = _staker.balance;
+        if (withdrawWithFine) {
+            _unbondingPeriod = 0;
+            _balance =
+                _balance -
+                ((_balance * immediateUnstakeFine) / PERCENTAGE_MULTIPLIER);
+        }
         require(
-            _staker.unstakeTime + unbondingPeriod <= block.timestamp,
+            _staker.unstakeTime + _unbondingPeriod <= block.timestamp,
             "Unbonding not over"
         );
-        uint256 _balance = _staker.balance;
+
         uint256 _rewards = _staker.rewards;
         _staker.balance = 0;
         _staker.rewards = 0;
@@ -74,10 +93,15 @@ contract Staking is Config, Ownable, IStaking {
         token.safeTransfer(msg.sender, _rewards);
     }
 
-    function updateAPY(uint256 _apy) external override onlyOwner {
+    function updateAPY(uint256 _apy, uint256 index) external override onlyOwner {
         // Batching
-        for (uint256 i = 0; i < stakers.length; i++) {
-            _updateRewards(stakers[i]);
+        for (index = 0; index < stakers.length; index++) {
+            _updateRewards(stakers[index]);
+            // if (gasleft() >= 20000) {
+            //     _updateRewards(stakers[index]);
+            // } else {
+            //     updateAPY(_apy, index);
+            // }
         }
         apy = _apy;
     }
@@ -94,8 +118,17 @@ contract Staking is Config, Ownable, IStaking {
         claimDelay = _claimDelay;
     }
 
-    function pause(bool _pauseStatus) external override onlyOwner {
+    function updatePauseStatus(bool _pauseStatus) external override onlyOwner {
         pauseStatus = _pauseStatus;
+    }
+
+    function updateStopStatus(bool _stopStatus) external override onlyOwner {
+        require(stopStatus != _stopStatus, "Same stop state");
+        // Batching
+        for (uint256 i = 0; i < stakers.length; i++) {
+            _updateRewards(stakers[i]);
+        }
+        stopStatus = _stopStatus;
     }
 
     function addStaker(address _address) private {
@@ -113,7 +146,7 @@ contract Staking is Config, Ownable, IStaking {
     function _updateRewards(address _address) private {
         Staker storage _staker = stakersInfo[_address];
         _staker.rewards = calculateReward(_address);
-    } 
+    }
 
     function calculateReward(address _address) private view returns (uint256) {
         Staker memory _staker = stakersInfo[_address];
